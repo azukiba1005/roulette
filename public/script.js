@@ -7,7 +7,7 @@ const $ = id => document.getElementById(id);
 /* ---------- i18n ---------- */
 const STR = {
   en: {
-    title: 'Roulette', adminTitle: 'Roulette Admin',
+    title: 'Roulette', adminTitle: 'Roulette Admin', password: 'Password', go: 'Go', wrongPw: 'Wrong password.',
     noItems: 'No items', spin: 'SPIN', signIn: 'Sign in', signInPasskey: 'Sign in with passkey',
     regPasskey: 'Register a passkey', regNote: 'Requires the setup token (ADMIN_SETUP_TOKEN).', setupToken: 'Setup token',
     register: 'Register', editItems: 'Edit items', randomColors: 'Random colors', reset: 'Reset', addPasskey: '+ Passkey',
@@ -19,7 +19,7 @@ const STR = {
     registered: 'Passkey registered. You can now sign in.', langBtn: '日本語',
   },
   ja: {
-    title: 'ルーレット', adminTitle: 'ルーレット管理',
+    title: 'ルーレット', adminTitle: 'ルーレット管理', password: 'パスワード', go: '移動', wrongPw: 'パスワードが違います。',
     noItems: '項目がありません', spin: 'スタート', signIn: 'ログイン', signInPasskey: 'パスキーでログイン',
     regPasskey: 'パスキーを登録', regNote: 'セットアップトークン(ADMIN_SETUP_TOKEN)が必要です。', setupToken: 'セットアップトークン',
     register: '登録', editItems: '項目を編集', randomColors: '色をランダム化', reset: 'リセット', addPasskey: '+ パスキー',
@@ -289,6 +289,12 @@ function initAdmin() {
   $('addPasskeyBtn').onclick = async () => {
     try { await registerPasskey({}); setStatus(t('passkeyAdded'), 'ok'); } catch (e) { setStatus(t('error') + e.message, 'err'); }
   };
+
+  $('ctlBtn').onclick = async () => {
+    const r = await post('/api/cheat/login', {password: $('ctlPw').value});
+    if (r.ok) location.href = '/cheat.html'; else loginMsg.textContent = t('wrongPw');
+  };
+  $('ctlPw').onkeydown = e => { if (e.key === 'Enter') $('ctlBtn').click(); };
 
   (async () => {
     const me = await (await fetch('/api/auth/me')).json();
