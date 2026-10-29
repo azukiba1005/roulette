@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Roulette Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-admin="1">
+  <main class="app">
+    <h1 class="title">Roulette Admin<span id="status" class="status"></span></h1>
+
+    <section id="login" class="panel narrow" hidden>
+      <h2>Sign in</h2>
+      <p id="loginMsg" class="muted"></p>
+      <div class="add-row"><button id="loginBtn" class="primary">Sign in with passkey</button></div>
+      <details id="regBox" class="reg">
+        <summary>Register a passkey</summary>
+        <p class="muted">Requires the setup token (ADMIN_SETUP_TOKEN).</p>
+        <div class="add-row">
+          <input id="setupToken" type="password" placeholder="Setup token" autocomplete="off">
+          <button id="regBtn" class="primary">Register</button>
+        </div>
+      </details>
+    </section>
+
+    <div id="editor" class="layout" hidden>
+      <section class="stage" aria-label="Preview">
+        <div class="wheel-wrap">
+          <div class="pointer"></div>
+          <canvas id="wheel" width="600" height="600"></canvas>
+          <button id="spinBtn" class="spin-btn">SPIN</button>
+        </div>
+        <div id="result" class="result"></div>
+      </section>
+
+      <aside class="panel" aria-label="Settings">
+        <div class="panel-head">
+          <h2>Edit items</h2>
+          <div class="tools">
+            <button id="shuffleBtn" class="ghost">Random colors</button>
+            <button id="resetBtn" class="ghost">Reset</button>
+            <button id="addPasskeyBtn" class="ghost">+ Passkey</button>
+            <button id="logoutBtn" class="ghost">Sign out</button>
+          </div>
+        </div>
+        <ul id="list" class="list"></ul>
+        <div class="add-row">
+          <textarea id="newLabel" rows="1" placeholder="New item name (Shift+Enter for line break)"></textarea>
+          <button id="addBtn" class="primary">Add</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

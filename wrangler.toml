@@ -1,0 +1,14 @@
+name = "roulette"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+# 作成: npx wrangler kv namespace create ROULETTE_KV
+# 出力された id を下に貼り付けてください
+[[kv_namespaces]]
+binding = "ROULETTE_KV"
+id = "0e39fc14c0cb4bd3935346257ea66725"
