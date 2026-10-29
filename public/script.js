@@ -4,6 +4,44 @@ const API = '/api/items';
 const ADMIN = document.body.dataset.admin === '1';
 const $ = id => document.getElementById(id);
 
+/* ---------- i18n ---------- */
+const STR = {
+  en: {
+    title: 'Roulette', adminTitle: 'Roulette Admin', rotate: '📱 Please rotate your phone to landscape for a bigger wheel.',
+    noItems: 'No items', spin: 'SPIN', signIn: 'Sign in', signInPasskey: 'Sign in with passkey',
+    regPasskey: 'Register a passkey', regNote: 'Requires the setup token (ADMIN_SETUP_TOKEN).', setupToken: 'Setup token',
+    register: 'Register', editItems: 'Edit items', randomColors: 'Random colors', reset: 'Reset', addPasskey: '+ Passkey',
+    signOut: 'Sign out', newItem: 'New item name (Shift+Enter for line break)', add: 'Add',
+    color: 'Color', label: 'Label', weight: 'Weight (chance)', del: 'Delete',
+    saving: 'Saving…', expired: 'Session expired', saved: 'Saved', saveFailed: 'Save failed', signedIn: 'Signed in',
+    passkeyAdded: 'Passkey added', confirmReset: 'Reset to defaults?', error: 'Error: ',
+    loginMsg: 'Sign in with your passkey to edit the roulette.', noCreds: 'No passkey registered yet. Register one using the setup token.',
+    registered: 'Passkey registered. You can now sign in.', langBtn: '日本語',
+  },
+  ja: {
+    title: 'ルーレット', adminTitle: 'ルーレット管理', rotate: '📱 スマホを横向きにしてください(ルーレットが大きく表示されます)',
+    noItems: '項目がありません', spin: 'スタート', signIn: 'ログイン', signInPasskey: 'パスキーでログイン',
+    regPasskey: 'パスキーを登録', regNote: 'セットアップトークン(ADMIN_SETUP_TOKEN)が必要です。', setupToken: 'セットアップトークン',
+    register: '登録', editItems: '項目を編集', randomColors: '色をランダム化', reset: 'リセット', addPasskey: '+ パスキー',
+    signOut: 'ログアウト', newItem: '新しい項目名(Shift+Enterで改行)', add: '追加',
+    color: '色', label: '項目名', weight: '重み(当たりやすさ)', del: '削除',
+    saving: '保存中…', expired: 'セッションが切れました', saved: '保存しました', saveFailed: '保存に失敗しました', signedIn: 'ログイン中',
+    passkeyAdded: 'パスキーを追加しました', confirmReset: '初期状態に戻しますか?', error: 'エラー: ',
+    loginMsg: 'パスキーでログインしてルーレットを編集してください。', noCreds: 'パスキーが未登録です。セットアップトークンで登録してください。',
+    registered: 'パスキーを登録しました。ログインできます。', langBtn: 'English',
+  },
+};
+let lang = localStorage.getItem('lang') || ((navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en');
+const t = k => STR[lang][k];
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.title = t(ADMIN ? 'adminTitle' : 'title');
+  document.querySelectorAll('[data-i18n]').forEach(e => { e.textContent = t(e.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(e => { e.placeholder = t(e.dataset.i18nPh); });
+  $('langBtn').textContent = t('langBtn');
+  if ($('spinBtn')) $('spinBtn').textContent = t('spin');
+}
+
 let items = DEFAULT();
 let angle = 0, spinning = false;
 
@@ -28,7 +66,7 @@ function draw() {
     ctx.fillStyle = '#eee';
     ctx.beginPath(); ctx.arc(c, c, r, 0, 7); ctx.fill();
     ctx.fillStyle = '#161616'; ctx.font = '28px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('No items', c, c);
+    ctx.fillText(t('noItems'), c, c);
     return;
   }
   let a = angle;
@@ -131,14 +169,14 @@ function initAdmin() {
 
   function save() {
     clearTimeout(saveTimer);
-    setStatus('Saving…');
+    setStatus(t('saving'));
     saveTimer = setTimeout(async () => {
       try {
         const r = await fetch(API, {method: 'PUT', headers: {'content-type': 'application/json'}, body: JSON.stringify(items)});
-        if (r.status === 401) { setStatus('Session expired', 'err'); return showLogin(); }
+        if (r.status === 401) { setStatus(t('expired'), 'err'); return showLogin(); }
         if (!r.ok) throw new Error(r.status);
-        setStatus('Saved', 'ok');
-      } catch { setStatus('Save failed', 'err'); }
+        setStatus(t('saved'), 'ok');
+      } catch { setStatus(t('saveFailed'), 'err'); }
     }, 500);
   }
 
@@ -147,10 +185,10 @@ function initAdmin() {
     items.forEach((it, i) => {
       const li = document.createElement('li');
       li.className = 'item';
-      li.innerHTML = `<input type="color" aria-label="Color">
-        <textarea rows="1" aria-label="Label"></textarea>
-        <input class="w" type="number" min="1" max="100" title="Weight (chance)">
-        <button class="del" title="Delete">✕</button>`;
+      li.innerHTML = `<input type="color" aria-label="${t('color')}">
+        <textarea rows="1" aria-label="${t('label')}"></textarea>
+        <input class="w" type="number" min="1" max="100" title="${t('weight')}">
+        <button class="del" title="${t('del')}">✕</button>`;
       const [col, txt, w, del] = li.children;
       col.value = it.color; txt.value = it.label; w.value = it.weight;
       col.oninput = () => { it.color = col.value; save(); draw(); };
@@ -176,7 +214,7 @@ function initAdmin() {
   $('addBtn').onclick = addItem;
   $('newLabel').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); addItem(); } };
   $('shuffleBtn').onclick = () => { items.forEach(it => it.color = PALETTE[Math.floor(Math.random() * PALETTE.length)]); save(); renderList(); draw(); };
-  $('resetBtn').onclick = () => { if (confirm('Reset to defaults?')) { items = DEFAULT(); save(); renderList(); draw(); } };
+  $('resetBtn').onclick = () => { if (confirm(t('confirmReset'))) { items = DEFAULT(); save(); renderList(); draw(); } };
   $('logoutBtn').onclick = async () => { await post('/api/auth/logout'); location.reload(); };
 
   /* passkeys */
@@ -216,24 +254,24 @@ function initAdmin() {
   const loginMsg = $('loginMsg');
   function showLogin(hasCreds = true) {
     $('editor').hidden = true; $('login').hidden = false;
-    loginMsg.textContent = hasCreds ? 'Sign in with your passkey to edit the roulette.' : 'No passkey registered yet. Register one using the setup token.';
+    loginMsg.textContent = hasCreds ? t('loginMsg') : t('noCreds');
     $('regBox').open = !hasCreds;
     $('loginBtn').hidden = !hasCreds;
   }
-  function showEditor() { $('login').hidden = true; $('editor').hidden = false; setStatus('Signed in', 'ok'); renderList(); draw(); }
+  function showEditor() { $('login').hidden = true; $('editor').hidden = false; setStatus(t('signedIn'), 'ok'); renderList(); draw(); }
 
   $('loginBtn').onclick = async () => {
-    try { await login(); showEditor(); } catch (e) { loginMsg.textContent = 'Error: ' + e.message; }
+    try { await login(); showEditor(); } catch (e) { loginMsg.textContent = t('error') + e.message; }
   };
   $('regBtn').onclick = async () => {
     try {
       await registerPasskey({setupToken: $('setupToken').value});
-      loginMsg.textContent = 'Passkey registered. You can now sign in.';
+      loginMsg.textContent = t('registered');
       $('setupToken').value = ''; $('regBox').open = false; $('loginBtn').hidden = false;
-    } catch (e) { loginMsg.textContent = 'Error: ' + e.message; }
+    } catch (e) { loginMsg.textContent = t('error') + e.message; }
   };
   $('addPasskeyBtn').onclick = async () => {
-    try { await registerPasskey({}); setStatus('Passkey added', 'ok'); } catch (e) { setStatus('Error: ' + e.message, 'err'); }
+    try { await registerPasskey({}); setStatus(t('passkeyAdded'), 'ok'); } catch (e) { setStatus(t('error') + e.message, 'err'); }
   };
 
   (async () => {
@@ -243,4 +281,11 @@ function initAdmin() {
 }
 
 if (ADMIN) initAdmin();
+applyLang();
+$('langBtn').onclick = () => {
+  lang = lang === 'en' ? 'ja' : 'en';
+  localStorage.setItem('lang', lang);
+  applyLang(); draw();
+  if (ADMIN && window.renderList && !$('editor').hidden) renderList();
+};
 loadItems();

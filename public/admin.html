@@ -10,19 +10,21 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-admin="1">
+  <button id="langBtn" class="ghost lang-btn" aria-label="Language"></button>
+  <div class="rotate-msg" data-i18n="rotate"></div>
   <main class="app">
-    <h1 class="title">Roulette Admin<span id="status" class="status"></span></h1>
+    <h1 class="title"><span data-i18n="adminTitle">Roulette Admin</span><span id="status" class="status"></span></h1>
 
     <section id="login" class="panel narrow" hidden>
-      <h2>Sign in</h2>
+      <h2 data-i18n="signIn">Sign in</h2>
       <p id="loginMsg" class="muted"></p>
-      <div class="add-row"><button id="loginBtn" class="primary">Sign in with passkey</button></div>
+      <div class="add-row"><button id="loginBtn" class="primary" data-i18n="signInPasskey">Sign in with passkey</button></div>
       <details id="regBox" class="reg">
-        <summary>Register a passkey</summary>
-        <p class="muted">Requires the setup token (ADMIN_SETUP_TOKEN).</p>
+        <summary data-i18n="regPasskey">Register a passkey</summary>
+        <p class="muted" data-i18n="regNote">Requires the setup token (ADMIN_SETUP_TOKEN).</p>
         <div class="add-row">
-          <input id="setupToken" type="password" placeholder="Setup token" autocomplete="off">
-          <button id="regBtn" class="primary">Register</button>
+          <input id="setupToken" type="password" placeholder="Setup token" data-i18n-ph="setupToken" autocomplete="off">
+          <button id="regBtn" class="primary" data-i18n="register">Register</button>
         </div>
       </details>
     </section>
@@ -39,18 +41,18 @@
 
       <aside class="panel" aria-label="Settings">
         <div class="panel-head">
-          <h2>Edit items</h2>
+          <h2 data-i18n="editItems">Edit items</h2>
           <div class="tools">
-            <button id="shuffleBtn" class="ghost">Random colors</button>
-            <button id="resetBtn" class="ghost">Reset</button>
-            <button id="addPasskeyBtn" class="ghost">+ Passkey</button>
-            <button id="logoutBtn" class="ghost">Sign out</button>
+            <button id="shuffleBtn" class="ghost" data-i18n="randomColors">Random colors</button>
+            <button id="resetBtn" class="ghost" data-i18n="reset">Reset</button>
+            <button id="addPasskeyBtn" class="ghost" data-i18n="addPasskey">+ Passkey</button>
+            <button id="logoutBtn" class="ghost" data-i18n="signOut">Sign out</button>
           </div>
         </div>
         <ul id="list" class="list"></ul>
         <div class="add-row">
-          <textarea id="newLabel" rows="1" placeholder="New item name (Shift+Enter for line break)"></textarea>
-          <button id="addBtn" class="primary">Add</button>
+          <textarea id="newLabel" rows="1" data-i18n-ph="newItem"></textarea>
+          <button id="addBtn" class="primary" data-i18n="add">Add</button>
         </div>
       </aside>
     </div>
