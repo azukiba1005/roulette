@@ -54,13 +54,11 @@ button{font-family:inherit;cursor:pointer}
 .tools{flex-wrap:wrap}
 .result{visibility:hidden}.result.show{visibility:visible}
 .lang-btn{position:fixed;top:10px;right:10px;z-index:20;box-shadow:3px 3px 0 var(--ink)}
-.rotate-msg{display:none;background:var(--accent);color:#fff;border-bottom:3px solid var(--ink);padding:10px 56px 10px 14px;font-weight:700;text-align:center;font-size:.95rem}
 @media(max-width:700px){
   .app{padding:16px 8px 40px}
   .wheel-wrap{width:min(98vw,540px)}
   .result{width:min(96vw,540px)}
 }
-@media(max-width:700px) and (orientation:portrait){.rotate-msg{display:block}}
 @media(max-height:520px) and (orientation:landscape){
   .app{padding:8px 12px 24px}
   .title{font-size:1.4rem;margin-bottom:12px;padding-bottom:4px}

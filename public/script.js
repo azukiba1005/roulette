@@ -7,7 +7,7 @@ const $ = id => document.getElementById(id);
 /* ---------- i18n ---------- */
 const STR = {
   en: {
-    title: 'Roulette', adminTitle: 'Roulette Admin', rotate: '📱 Please rotate your phone to landscape for a bigger wheel.',
+    title: 'Roulette', adminTitle: 'Roulette Admin',
     noItems: 'No items', spin: 'SPIN', signIn: 'Sign in', signInPasskey: 'Sign in with passkey',
     regPasskey: 'Register a passkey', regNote: 'Requires the setup token (ADMIN_SETUP_TOKEN).', setupToken: 'Setup token',
     register: 'Register', editItems: 'Edit items', randomColors: 'Random colors', reset: 'Reset', addPasskey: '+ Passkey',
@@ -19,7 +19,7 @@ const STR = {
     registered: 'Passkey registered. You can now sign in.', langBtn: '日本語',
   },
   ja: {
-    title: 'ルーレット', adminTitle: 'ルーレット管理', rotate: '📱 スマホを横向きにしてください(ルーレットが大きく表示されます)',
+    title: 'ルーレット', adminTitle: 'ルーレット管理',
     noItems: '項目がありません', spin: 'スタート', signIn: 'ログイン', signInPasskey: 'パスキーでログイン',
     regPasskey: 'パスキーを登録', regNote: 'セットアップトークン(ADMIN_SETUP_TOKEN)が必要です。', setupToken: 'セットアップトークン',
     register: '登録', editItems: '項目を編集', randomColors: '色をランダム化', reset: 'リセット', addPasskey: '+ パスキー',
@@ -70,9 +70,9 @@ function draw() {
     return;
   }
   let a = angle;
-  const t = total();
+  const tot = total();
   items.forEach(it => {
-    const span = it.weight / t * Math.PI * 2;
+    const span = it.weight / tot * Math.PI * 2;
     ctx.beginPath(); ctx.moveTo(c, c); ctx.arc(c, c, r, a, a + span); ctx.closePath();
     ctx.fillStyle = it.color; ctx.fill();
     ctx.strokeStyle = '#161616'; ctx.lineWidth = 4; ctx.stroke();
