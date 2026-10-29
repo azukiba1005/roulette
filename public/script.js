@@ -75,7 +75,7 @@ function draw() {
     const span = it.weight / tot * Math.PI * 2;
     ctx.beginPath(); ctx.moveTo(c, c); ctx.arc(c, c, r, a, a + span); ctx.closePath();
     ctx.fillStyle = it.color; ctx.fill();
-    ctx.strokeStyle = '#161616'; ctx.lineWidth = 4; ctx.stroke();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
     ctx.save();
     ctx.translate(c, c); ctx.rotate(a + span / 2);
     ctx.fillStyle = textColor(it.color);
