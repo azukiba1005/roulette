@@ -110,12 +110,28 @@ function wrapText(text, maxW) {
   return lines.length ? lines : [''];
 }
 
-function spin() {
+async function spin() {
   if (spinning || !items.length) return;
   spinning = true; spinBtn.disabled = true;
   resultEl.textContent = ''; resultEl.classList.remove('win', 'show');
+  // On the public page the winner is decided by the server; admin preview stays local.
+  let win = null;
+  if (!ADMIN) {
+    try { win = (await (await fetch('/api/spin', {method: 'POST'})).json()).index; } catch {}
+    if (!Number.isInteger(win) || win < 0 || win >= items.length) win = null;
+  }
+  const two = Math.PI * 2;
   const start = angle;
-  const target = start + (5 + Math.random() * 3) * Math.PI * 2 + Math.random() * Math.PI * 2;
+  let target = start + (5 + Math.random() * 3) * two + Math.random() * two;
+  if (win !== null) {
+    const t = total();
+    let acc = 0;
+    for (let i = 0; i < win; i++) acc += items[i].weight / t * two;
+    const pos = acc + (0.1 + Math.random() * 0.8) * items[win].weight / t * two;
+    const base = -Math.PI / 2 - pos;
+    const minTarget = start + 5 * two + Math.random() * two;
+    target = base + Math.ceil((minTarget - base) / two) * two;
+  }
   const dur = 5000, t0 = performance.now();
   const frame = now => {
     const p = Math.min(1, (now - t0) / dur);

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Control</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .row{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+    select,input[type=password]{flex:1;min-width:0;padding:10px 12px;border:2px solid var(--ink);background:#fff;color:var(--ink);font:inherit}
+    .switch{display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer}
+    .switch input{width:22px;height:22px;accent-color:var(--accent)}
+    .rate{opacity:.7;font-size:.9rem}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1 class="title"><span>Control</span><span id="status" class="status"></span></h1>
+
+    <section id="login" class="panel narrow">
+      <h2 id="tLogin">ログイン</h2>
+      <p id="loginMsg" class="muted"></p>
+      <div class="add-row">
+        <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+        <button id="loginBtn" class="primary">OK</button>
+      </div>
+    </section>
+
+    <section id="panel" class="panel narrow" hidden>
+      <div class="panel-head"><h2 id="tPanel">設定</h2><button id="logoutBtn" class="ghost">Logout</button></div>
+      <div class="row"><label class="switch"><input id="enabled" type="checkbox"><span id="tOn">ON</span></label></div>
+      <div class="row"><select id="target" aria-label="target"></select></div>
+      <p class="rate" id="tRate"></p>
+    </section>
+  </main>
+  <script>
+    const $ = id => document.getElementById(id);
+    const ja = !(localStorage.getItem('lang') || navigator.language).toLowerCase().startsWith('en');
+    const T = ja
+      ? {login: 'ログイン', panel: '設定', on: 'ON(60%の確率で選んだ項目が当たる)', msg: 'パスワードを入力してください。', wrong: 'パスワードが違います。', saved: '保存しました', fail: '失敗しました', none: '(項目なし)', rate: '※ ONのとき、スピンの60%で下で選んだ項目が当たります。'}
+      : {login: 'Sign in', panel: 'Settings', on: 'ON (60% chance the chosen item wins)', msg: 'Enter the password.', wrong: 'Wrong password.', saved: 'Saved', fail: 'Failed', none: '(no items)', rate: 'When ON, the chosen item wins 60% of spins.'};
+    $('tLogin').textContent = T.login; $('tPanel').textContent = T.panel; $('tOn').textContent = T.on;
+    $('loginMsg').textContent = T.msg; $('tRate').textContent = T.rate;
+    const api = (path, method = 'GET', body) => fetch(path, {method, headers: {'content-type': 'application/json'}, body: body && JSON.stringify(body)});
+    const setStatus = (t, cls) => { $('status').textContent = t; $('status').className = 'status ' + (cls || ''); };
+
+    async function save() {
+      const r = await api('/api/cheat', 'PUT', {enabled: $('enabled').checked, target: $('target').value});
+      r.ok ? setStatus(T.saved, 'ok') : setStatus(T.fail, 'err');
+    }
+    async function show() {
+      $('login').hidden = true; $('panel').hidden = false;
+      const items = await (await api('/api/items')).json() || [];
+      const cur = await (await api('/api/cheat')).json();
+      const sel = $('target'); sel.innerHTML = '';
+      if (!items.length) sel.innerHTML = `<option value="">${T.none}</option>`;
+      items.forEach(it => { const o = document.createElement('option'); o.value = it.label; o.textContent = it.label.replace(/\n/g, ' '); sel.appendChild(o); });
+      if (items.some(i => i.label === cur.target)) sel.value = cur.target;
+      $('enabled').checked = cur.enabled;
+    }
+    $('enabled').onchange = $('target').onchange = save;
+    async function login() {
+      const r = await api('/api/cheat/login', 'POST', {password: $('pw').value});
+      if (r.ok) { $('pw').value = ''; show(); } else $('loginMsg').textContent = T.wrong;
+    }
+    $('loginBtn').onclick = login;
+    $('pw').onkeydown = e => { if (e.key === 'Enter') login(); };
+    $('logoutBtn').onclick = async () => { await api('/api/cheat/logout', 'POST'); location.reload(); };
+    (async () => { if ((await (await api('/api/cheat/me')).json()).authed) show(); })();
+  </script>
+</body>
+</html>

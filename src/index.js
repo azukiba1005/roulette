@@ -127,11 +127,74 @@ async function handleAuth(request, env, url) {
   return json({ error: 'not found' }, 404);
 }
 
+// ---- Cheat feature (hidden, server-side) ----
+const CHEAT_RATE = 0.6;
+const getCookie = (request, name) => {
+  const m = new RegExp('(?:^|;\\s*)' + name + '=([\\w-]+)').exec(request.headers.get('cookie') || '');
+  return m ? m[1] : null;
+};
+async function isCheatAuthed(request, env) {
+  if (await isAuthed(request, env)) return true; // full admin may also use it
+  const s = getCookie(request, 'csession');
+  return !!s && (await env.ROULETTE_KV.get('csess:' + s)) !== null;
+}
+const getCheat = async env => JSON.parse((await env.ROULETTE_KV.get('cheat')) || '{"enabled":false,"target":""}');
+
+async function handleCheat(request, env, url) {
+  const path = url.pathname;
+  const secure = url.protocol === 'https:' ? '; Secure' : '';
+  if (path === '/api/cheat/me') return json({ authed: await isCheatAuthed(request, env) });
+  if (path === '/api/cheat/logout' && request.method === 'POST') {
+    const s = getCookie(request, 'csession');
+    if (s) await env.ROULETTE_KV.delete('csess:' + s);
+    return json({ ok: true }, 200, { 'set-cookie': 'csession=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict' });
+  }
+  if (path === '/api/cheat/login' && request.method === 'POST') {
+    const body = await request.json().catch(() => ({}));
+    if (!env.CHEAT_PASSWORD) return json({ error: 'not configured' }, 500);
+    const a = new Uint8Array(await sha256(enc.encode(String(body.password ?? ''))));
+    const b = new Uint8Array(await sha256(enc.encode(env.CHEAT_PASSWORD)));
+    if (!eq(a, b)) return json({ error: 'wrong password' }, 401);
+    const sid = rand(32);
+    await env.ROULETTE_KV.put('csess:' + sid, '1', { expirationTtl: 60 * 60 * 8 });
+    return json({ ok: true }, 200, { 'set-cookie': `csession=${sid}; Path=/; Max-Age=28800; HttpOnly; SameSite=Strict${secure}` });
+  }
+  if (path === '/api/cheat') {
+    if (!(await isCheatAuthed(request, env))) return json({ error: 'unauthorized' }, 401);
+    if (request.method === 'GET') return json(await getCheat(env));
+    if (request.method === 'PUT') {
+      const body = await request.json().catch(() => ({}));
+      const cheat = { enabled: !!body.enabled, target: String(body.target ?? '') };
+      await env.ROULETTE_KV.put('cheat', JSON.stringify(cheat));
+      return json(cheat);
+    }
+  }
+  return json({ error: 'not found' }, 404);
+}
+
+// Server decides the winner so the cheat settings are never exposed to clients.
+async function handleSpin(env) {
+  const items = JSON.parse((await env.ROULETTE_KV.get('items')) || 'null');
+  if (!Array.isArray(items) || !items.length) return json({ index: null });
+  const cheat = await getCheat(env);
+  const rnd = () => crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+  if (cheat.enabled) {
+    const ti = items.findIndex(i => i.label === cheat.target);
+    if (ti >= 0 && rnd() < CHEAT_RATE) return json({ index: ti });
+  }
+  const total = items.reduce((s, i) => s + i.weight, 0);
+  let x = rnd() * total, idx = items.length - 1;
+  for (let i = 0; i < items.length; i++) { if (x < items[i].weight) { idx = i; break; } x -= items[i].weight; }
+  return json({ index: idx });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     try {
       if (url.pathname.startsWith('/api/auth/')) return await handleAuth(request, env, url);
+      if (url.pathname.startsWith('/api/cheat')) return await handleCheat(request, env, url);
+      if (url.pathname === '/api/spin' && request.method === 'POST') return await handleSpin(env);
       if (url.pathname === '/api/items') {
         if (request.method === 'GET') {
           const data = await env.ROULETTE_KV.get('items');
