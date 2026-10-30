@@ -38,8 +38,8 @@
     const $ = id => document.getElementById(id);
     const ja = !(localStorage.getItem('lang') || navigator.language).toLowerCase().startsWith('en');
     const T = ja
-      ? {login: 'ログイン', panel: '設定', on: 'ON(60%の確率で選んだ項目が当たる)', msg: 'パスワードを入力してください。', wrong: 'パスワードが違います。', saved: '保存しました', fail: '失敗しました', none: '(項目なし)', rate: '※ ONのとき、スピンの60%で下で選んだ項目が当たります。'}
-      : {login: 'Sign in', panel: 'Settings', on: 'ON (60% chance the chosen item wins)', msg: 'Enter the password.', wrong: 'Wrong password.', saved: 'Saved', fail: 'Failed', none: '(no items)', rate: 'When ON, the chosen item wins 60% of spins.'};
+      ? {login: 'ログイン', panel: '設定', on: 'ON(60%の確率で選んだ項目が当たる)', msg: 'パスワードを入力してください。', wrong: 'パスワードが違います。', saved: '保存しました', fail: '失敗しました', none: '(項目なし)', rate: '※ ONのとき、タップの60%で下で選んだ項目が当たります。'}
+      : {login: 'Sign in', panel: 'Settings', on: 'ON (60% chance the chosen item wins)', msg: 'Enter the password.', wrong: 'Wrong password.', saved: 'Saved', fail: 'Failed', none: '(no items)', rate: 'When ON, the chosen item wins 60% of taps.'};
     $('tLogin').textContent = T.login; $('tPanel').textContent = T.panel; $('tOn').textContent = T.on;
     $('loginMsg').textContent = T.msg; $('tRate').textContent = T.rate;
     const api = (path, method = 'GET', body) => fetch(path, {method, headers: {'content-type': 'application/json'}, body: body && JSON.stringify(body)});

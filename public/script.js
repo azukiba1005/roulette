@@ -8,7 +8,7 @@ const $ = id => document.getElementById(id);
 const STR = {
   en: {
     title: 'Roulette', adminTitle: 'Roulette Admin', password: 'Password', go: 'Go', wrongPw: 'Wrong password.',
-    noItems: 'No items', spin: 'SPIN', signIn: 'Sign in', signInPasskey: 'Sign in with passkey',
+    noItems: 'No items', spin: 'TAP', signIn: 'Sign in', signInPasskey: 'Sign in with passkey',
     regPasskey: 'Register a passkey', regNote: 'Requires the setup token (ADMIN_SETUP_TOKEN).', setupToken: 'Setup token',
     register: 'Register', editItems: 'Edit items', randomColors: 'Random colors', reset: 'Reset', addPasskey: '+ Passkey',
     signOut: 'Sign out', newItem: 'New item name (Shift+Enter for line break)', add: 'Add',
@@ -20,7 +20,7 @@ const STR = {
   },
   ja: {
     title: 'ルーレット', adminTitle: 'ルーレット管理', password: 'パスワード', go: '移動', wrongPw: 'パスワードが違います。',
-    noItems: '項目がありません', spin: 'スタート', signIn: 'ログイン', signInPasskey: 'パスキーでログイン',
+    noItems: '項目がありません', spin: 'TAP', signIn: 'ログイン', signInPasskey: 'パスキーでログイン',
     regPasskey: 'パスキーを登録', regNote: 'セットアップトークン(ADMIN_SETUP_TOKEN)が必要です。', setupToken: 'セットアップトークン',
     register: '登録', editItems: '項目を編集', randomColors: '色をランダム化', reset: 'リセット', addPasskey: '+ パスキー',
     signOut: 'ログアウト', newItem: '新しい項目名(Shift+Enterで改行)', add: '追加',
